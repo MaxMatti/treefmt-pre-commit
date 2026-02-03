@@ -4,7 +4,7 @@ on:
     - cron: "0 */4 * * *"
   workflow_dispatch:
   repository_dispatch:
-    types: [pypi_release]
+    types: [github_release]
 
 permissions: {}
 
@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write  # Required for PyPI trusted publishing
     steps:
       - if: ${{ startsWith(github.event_name, 'repository_dispatch') }}
         run: sleep 30
@@ -44,6 +45,22 @@ jobs:
             echo "changes_exist=true" >> $GITHUB_ENV
           fi
 
+      - name: Build wheels for all platforms
+        if: env.changes_exist == 'true'
+        run: |
+          # Get version from pyproject.toml
+          VERSION=$(python3 -c "import tomllib; f=open('pyproject.toml','rb'); print(tomllib.load(f)['project']['version'])")
+          echo "Building wheels for version $VERSION"
+
+          # Build wheels for all platforms
+          python3 build.py --version "$VERSION" --platform all --output-dir dist
+
+      - name: Publish to PyPI
+        if: env.changes_exist == 'true'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+
       - name: push changes if they exist
         if: env.changes_exist == 'true'
         run: |
@@ -57,7 +74,7 @@ jobs:
           echo $TAG_NAME
           gh release create "$TAG_NAME" \
             --title "$TAG_NAME" \
-            --notes "See: https://github.com/astral-sh/ruff/releases/tag/${TAG_NAME/v}" \
+            --notes "See: https://github.com/numtide/treefmt/releases/tag/$TAG_NAME" \
             --latest
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

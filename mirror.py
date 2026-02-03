@@ -5,7 +5,7 @@
 #   "urllib3==2.0.5",
 # ]
 # ///
-"""Update ruff-pre-commit to the latest version of ruff."""
+"""Update treefmt-pre-commit to the latest version of treefmt."""
 
 import re
 import subprocess
@@ -14,7 +14,6 @@ import typing
 from pathlib import Path
 
 import urllib3
-from packaging.requirements import Requirement
 from packaging.version import Version
 
 
@@ -37,34 +36,63 @@ def main():
 
 
 def get_all_versions() -> list[Version]:
-    response = urllib3.request("GET", "https://pypi.org/pypi/ruff/json")
-    if response.status != 200:
-        raise RuntimeError("Failed to fetch versions from pypi")
+    """Fetch all treefmt versions from GitHub releases."""
+    http = urllib3.PoolManager()
+    response = http.request(
+        "GET",
+        "https://api.github.com/repos/numtide/treefmt/releases",
+        headers={
+            "Accept": "application/vnd.github+json",
+            "User-Agent": "treefmt-pre-commit-mirror",
+        },
+    )
 
-    versions = [Version(release) for release in response.json()["releases"]]
+    if response.status != 200:
+        raise RuntimeError(
+            f"Failed to fetch versions from GitHub: HTTP {response.status}"
+        )
+
+    import json
+
+    releases = json.loads(response.data.decode("utf-8"))
+
+    # Filter out pre-releases and parse version tags
+    versions = []
+    for release in releases:
+        if release.get("prerelease", False) or release.get("draft", False):
+            continue
+
+        tag_name = release["tag_name"]
+        # Remove 'v' prefix if present
+        version_str = tag_name.lstrip("v")
+
+        try:
+            versions.append(Version(version_str))
+        except Exception as e:
+            print(f"Warning: Could not parse version from tag {tag_name}: {e}")
+            continue
+
     return sorted(versions)
 
 
 def get_current_version(pyproject: dict) -> Version:
-    requirements = [Requirement(d) for d in pyproject["project"]["dependencies"]]
-    requirement = next((r for r in requirements if r.name == "ruff"), None)
-    assert requirement is not None, "pyproject.toml does not have ruff requirement"
-
-    specifiers = list(requirement.specifier)
-    assert (
-        len(specifiers) == 1 and specifiers[0].operator == "=="
-    ), f"ruff's specifier should be exact matching, but `{requirement}`"
-
-    return Version(specifiers[0].version)
+    """Get current version from pyproject.toml."""
+    version_str = pyproject["project"]["version"]
+    return Version(version_str)
 
 
 def process_version(version: Version) -> typing.Sequence[str]:
+    """Update files with new version."""
+
     def replace_pyproject_toml(content: str) -> str:
-        return re.sub(r'"ruff==.*"', f'"ruff=={version}"', content)
+        return re.sub(r'version = ".*"', f'version = "{version}"', content)
 
     def replace_readme_md(content: str) -> str:
+        # Update the rev: line in YAML examples
         content = re.sub(r"rev: v\d+\.\d+\.\d+", f"rev: v{version}", content)
-        return re.sub(r"/ruff/\d+\.\d+\.\d+\.svg", f"/ruff/{version}.svg", content)
+        # Update any version badges or references
+        content = re.sub(r"treefmt/\d+\.\d+\.\d+", f"treefmt/{version}", content)
+        return content
 
     paths = {
         "pyproject.toml": replace_pyproject_toml,
