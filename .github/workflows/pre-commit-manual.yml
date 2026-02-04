@@ -1,11 +1,11 @@
-name: Prek
+name: Pre-commit Manually
 
 on:
-  push:
   pull_request:
+  push:
 
 jobs:
-  prek:
+  pre-commit-manual:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/astral-sh/uv:alpine
@@ -13,14 +13,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
-          set-safe-directory: true
+          persist-credentials: true # hopefully keep the .git folder
 
       - name: Install dependencies
         run: |
           apk update
           apk add git npm py3-virtualenv yamlfmt
           npm install prettier @taplo/cli
-          uv tool install prek
+          uv tool install pre-commit
 
-      - name: Run prek
-        run: prek run --all-files --show-diff-on-failure
+      - name: Run pre-commit
+        run: pre-commit run --all-files --show-diff-on-failure

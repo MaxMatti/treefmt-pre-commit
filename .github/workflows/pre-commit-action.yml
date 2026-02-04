@@ -1,12 +1,11 @@
-name: pre-commit-action
+name: Pre-commit Action
 
 on:
   pull_request:
   push:
-    branches: [main]
 
 jobs:
-  pre-commit:
+  pre-commit-action:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
