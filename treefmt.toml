@@ -1,3 +1,4 @@
+# Most formatters are not actively used in this repo but rather added as examples for testing
 [global]
 gitignore = true
 
