@@ -1,0 +1,24 @@
+name: Prek
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  prek:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/astral-sh/uv:alpine
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install dependencies
+        run: |
+          apk update
+          apk add git npm py3-virtualenv yamlfmt
+          npm install prettier @taplo/cli
+          uv tool install prek
+
+      - name: Run prek
+        run: prek run --all-files --show-diff-on-failure

@@ -1,17 +1,24 @@
-- id: treefmt
-  name: treefmt
-  description: "Format files with treefmt"
-  entry: treefmt
-  language: python
-  pass_filenames: true
-  require_serial: false
-  minimum_pre_commit_version: "2.9.2"
-
-- id: treefmt-check
-  name: treefmt (check mode)
-  description: "Check formatting with treefmt (fails if changes needed)"
-  entry: treefmt --fail-on-change
-  language: python
-  pass_filenames: true
-  require_serial: false
-  minimum_pre_commit_version: "2.9.2"
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: check-json
+      - id: check-toml
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: detect-private-key
+  - repo: https://github.com/MaxMatti/treefmt-pre-commit
+    rev: v2.4.0
+    hooks:
+      - id: treefmt
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.14
+    hooks:
+      - id: ruff-check
+  - repo: https://code.forgejo.org/forgejo/runner
+    rev: v12.5.3
+    hooks:
+      - id: forgejo-runner-validate
