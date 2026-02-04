@@ -1,0 +1,17 @@
+- id: treefmt
+  name: treefmt
+  description: "Format files with treefmt"
+  entry: treefmt
+  language: python
+  pass_filenames: true
+  require_serial: false
+  minimum_pre_commit_version: "2.9.2"
+
+- id: treefmt-check
+  name: treefmt (check mode)
+  description: "Check formatting with treefmt (fails if changes needed)"
+  entry: treefmt --fail-on-change
+  language: python
+  pass_filenames: true
+  require_serial: false
+  minimum_pre_commit_version: "2.9.2"

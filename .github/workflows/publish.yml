@@ -1,0 +1,75 @@
+name: Manual Publish to PyPI
+on:
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create GitHub release and tag'
+        required: false
+        type: boolean
+        default: true
+
+permissions: {}
+
+jobs:
+  publish:
+    name: Build and Publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write  # Required for PyPI trusted publishing
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: true
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@803947b9bd8e9f986429fa0c5a41c367cd732b41 # v7.2.1
+
+      - name: Get version from pyproject.toml
+        id: get_version
+        run: |
+          VERSION=$(python3 -c "import tomllib; f=open('pyproject.toml','rb'); print(tomllib.load(f)['project']['version'])")
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building and publishing version $VERSION"
+
+      - name: Build wheels for all platforms
+        run: |
+          python3 build.py --version "${{ steps.get_version.outputs.VERSION }}" --platform all --output-dir dist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+
+      - name: Create git tag
+        if: inputs.create_release
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+          TAG_NAME="v${{ steps.get_version.outputs.VERSION }}"
+
+          # Check if tag already exists
+          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Tag $TAG_NAME already exists, skipping tag creation"
+          else
+            git tag "$TAG_NAME"
+            git push origin "$TAG_NAME"
+          fi
+
+      - name: Create GitHub release
+        if: inputs.create_release
+        run: |
+          TAG_NAME="v${{ steps.get_version.outputs.VERSION }}"
+
+          # Check if release already exists
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            echo "Release $TAG_NAME already exists, skipping release creation"
+          else
+            gh release create "$TAG_NAME" \
+              --title "$TAG_NAME" \
+              --notes "Manual release for treefmt-pre-commit ${{ steps.get_version.outputs.VERSION }}" \
+              --latest
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
