@@ -11,7 +11,7 @@ repos:
       - id: check-merge-conflict
       - id: detect-private-key
   - repo: https://github.com/MaxMatti/treefmt-pre-commit
-    rev: v2.4.0.18
+    rev: v2.4.0.19
     hooks:
       - id: treefmt
         args:
