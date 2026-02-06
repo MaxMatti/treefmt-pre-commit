@@ -1,6 +1,34 @@
 [project]
-name = "ruff-pre-commit"
-version = "0.0.0"
-dependencies = [
-    "ruff==0.14.14",
+name = "treefmt-pre-commit"
+version = "2.4.0.18"
+description = "Pre-commit hooks for treefmt"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT OR Apache-2.0" }
+authors = [{ name = "Max Staff", email = "max.staff@gmx.de" }]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
 ]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/MaxMatti/treefmt-pre-commit"
+Repository = "https://github.com/MaxMatti/treefmt-pre-commit"
+"Bug Tracker" = "https://github.com/MaxMatti/treefmt-pre-commit/issues"
+
+[project.scripts]
+treefmt = "treefmt_pre_commit.__main__:main"
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["treefmt_pre_commit"]

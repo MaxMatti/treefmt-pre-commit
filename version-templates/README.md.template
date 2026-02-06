@@ -28,7 +28,7 @@ Add the following to your `.pre-commit-config.yaml`:
 ```yaml
 repos:
   - repo: https://github.com/MaxMatti/treefmt-pre-commit
-    rev: v2.4.0.18
+    rev: v{version}
     hooks:
       - id: treefmt
 ```
@@ -44,7 +44,7 @@ Formats files automatically using treefmt.
 ```yaml
 repos:
   - repo: https://github.com/MaxMatti/treefmt-pre-commit
-    rev: v2.4.0.18
+    rev: v{version}
     hooks:
       - id: treefmt
 ```
@@ -62,7 +62,7 @@ Checks if files need formatting without modifying them. Useful for CI pipelines.
 ```yaml
 repos:
   - repo: https://github.com/MaxMatti/treefmt-pre-commit
-    rev: v2.4.0.18
+    rev: v{version}
     hooks:
       - id: treefmt-check
 ```
@@ -110,7 +110,7 @@ Format all files:
 ```yaml
 repos:
   - repo: https://github.com/MaxMatti/treefmt-pre-commit
-    rev: v2.4.0.18
+    rev: v{version}
     hooks:
       - id: treefmt
 ```
@@ -122,7 +122,7 @@ Use the check mode in CI to ensure all files are formatted:
 ```yaml
 repos:
   - repo: https://github.com/MaxMatti/treefmt-pre-commit
-    rev: v2.4.0.18
+    rev: v{version}
     hooks:
       - id: treefmt-check
 ```
@@ -153,7 +153,7 @@ You can limit which files pre-commit passes to treefmt:
 ```yaml
 repos:
   - repo: https://github.com/MaxMatti/treefmt-pre-commit
-    rev: v2.4.0.18
+    rev: v{version}
     hooks:
       - id: treefmt
         files: \.(py|js|ts|md)$
@@ -195,7 +195,7 @@ You can use a single treefmt hook:
 # With treefmt - single hook, configured in treefmt.toml
 repos:
   - repo: https://github.com/MaxMatti/treefmt-pre-commit
-    rev: v2.4.0.18
+    rev: v{version}
     hooks:
       - id: treefmt
 ```
