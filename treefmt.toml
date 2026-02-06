@@ -1,0 +1,32 @@
+# Most formatters are not actively used in this repo but rather added as examples for testing
+[global]
+gitignore = true
+
+# Python (Formatter)
+[formatter.ruff]
+command = "ruff"
+options = ["format"]
+includes = ["*.py"]
+
+# YAML
+[formatter.yamlfmt]
+command = "yamlfmt"
+includes = ["*.yml", "*.yaml"]
+
+# JSON
+[formatter.prettier-json]
+command = "prettier"
+options = ["--write"]
+includes = ["*.json"]
+
+# TOML
+[formatter.taplo]
+command = "taplo"
+options = ["fmt"]
+includes = ["*.toml"]
+
+# Markdown
+[formatter.prettier-md]
+command = "prettier"
+options = ["--write"]
+includes = ["*.md"]

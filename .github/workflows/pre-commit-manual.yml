@@ -1,0 +1,34 @@
+name: Pre-commit Manually
+on:
+  workflow_run:
+    workflows: ["Manual Publish to PyPI", "main"]
+    types:
+      - completed
+jobs:
+  pre-commit-manual:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+      - name: Install formatters
+        run: |
+          # Install Python formatters and pre-commit
+          pip install ruff pre-commit
+
+          # Install Node.js based formatters
+          npm install -g prettier @taplo/cli
+
+          # Install Go based formatters
+          go install github.com/google/yamlfmt/cmd/yamlfmt@latest
+
+          # Add Go bin to PATH
+          echo "$HOME/go/bin" >> $GITHUB_PATH
+      - name: Run pre-commit
+        run: pre-commit run --all-files --show-diff-on-failure
